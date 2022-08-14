@@ -1,8 +1,9 @@
+#!/usr/bin/python3
 import os
 import urllib.request
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
-import os
+# import os
  
 UPLOAD_FOLDER = 'static/uploads'
  
@@ -31,13 +32,18 @@ def upload_image():
         return redirect(request.url)
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(application.config['UPLOAD_FOLDER'], filename))
+        file.save(os.path.join(application.config['UPLOAD_FOLDER'], 'dog.jpeg'))
         #print('upload_image filename: ' + filename)
-        print(filename)
+        
         flash('Image successfully uploaded and displayed below')
-        os.system(f'python models/demo.py image -n models/yolox_s.py -c models/yolox_s.pth --path models/{filename} --conf 0.01 --nms 0.65 --tsize 640 --save_result --device cpu')
+        print(filename)
+        os.system(f'python3 models/demo.py image -n models/yolox_s.py -c models/yolox_s.pth --path models/{filename} --conf 0.30 --nms 0.65 --tsize 640 --save_result --device cpu')
         print('After')
-        return render_template('upload.html', filename='static/yolox_output/dogs.jpeg')
+        print(os.getcwd())
+        with open(str(os.getcwd())+'/static/yolox_output/DBMno.txt', 'r') as f:
+            DBMno = f.readline()
+            f.close()
+        return render_template('upload.html', filename='static/yolox_output/dogs.jpeg',No_of_boxes = DBMno)
     else:
         flash('Allowed image types are -> png, jpg, jpeg, gif')
         return redirect(request.url)

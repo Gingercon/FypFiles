@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # -*- coding:utf-8 -*-
 # Copyright (c) Megvii, Inc. and its affiliates.
 
 import argparse
 import os
 import time
-from loguru import logger
+# from loguru import logger
 
 import cv2
 
@@ -52,8 +52,8 @@ def make_parser():
         type=str,
         help="device to run our model, can either be cpu or gpu",
     )
-    parser.add_argument("--conf", default=0.3, type=float, help="test conf")
-    parser.add_argument("--nms", default=0.3, type=float, help="test nms threshold")
+    parser.add_argument("--conf", default=30, type=float, help="test conf")
+    parser.add_argument("--nms", default=30, type=float, help="test nms threshold")
     parser.add_argument("--tsize", default=None, type=int, help="test img size")
     parser.add_argument(
         "--fp16",
@@ -162,7 +162,7 @@ class Predictor(object):
                 outputs, self.num_classes, self.confthre,
                 self.nmsthre, class_agnostic=True
             )
-            logger.info("Infer time: {:.4f}s".format(time.time() - t0))
+            # logger.info("Infer time: {:.4f}s".format(time.time() - t0))
         return outputs, img_info
 
     def visual(self, output, img_info, cls_conf=0.35):
@@ -185,13 +185,20 @@ class Predictor(object):
 
 
 def image_demo(predictor, vis_folder, path, current_time, save_result):
+    print('path,viz',path)
+    path = 'static/uploads/dog.jpeg'
     if os.path.isdir(path):
         files = get_image_list(path)
     else:
         files = [path]
     files.sort()
     for image_name in files:
+        print(image_name)
         outputs, img_info = predictor.inference(image_name)
+        DBMno = str(int(outputs[0].shape[0]))+' DBM Detected'
+        with open('./static/yolox_output/DBMno.txt', 'w') as f:
+            f.write('%s' % DBMno)
+            f.close()
         result_image = predictor.visual(outputs[0], img_info, predictor.confthre)
         if save_result:
             save_folder = os.path.join(
@@ -200,8 +207,12 @@ def image_demo(predictor, vis_folder, path, current_time, save_result):
             os.makedirs(save_folder, exist_ok=True)
             save_file_name = os.path.join(save_folder, os.path.basename(image_name))
             print('(((((((((((((',save_file_name)
-            logger.info("Saving detection result in {}".format(save_file_name))
-            cv2.imwrite('./yolox_output/dogs.jpeg', result_image)
+            try:
+                # logger.info("Saving detection result in {}".format(save_file_name))
+                cv2.imwrite('./static/yolox_output/dogs.jpeg', result_image)
+            except Exception as e:
+                print("Exception",e)
+
         ch = cv2.waitKey(0)
         if ch == 27 or ch == ord("q") or ch == ord("Q"):
             break
@@ -221,7 +232,7 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
             save_path = os.path.join(save_folder, os.path.basename(args.path))
         else:
             save_path = os.path.join(save_folder, "camera.mp4")
-        logger.info(f"video save_path is {save_path}")
+        print(save_path)
         vid_writer = cv2.VideoWriter(
             save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (int(width), int(height))
         )
@@ -257,7 +268,7 @@ def main(exp, args):
     if args.trt:
         args.device = "gpu"
 
-    logger.info("Args: {}".format(args))
+    # logger.info("Args: {}".format(args))
 
     if args.conf is not None:
         exp.test_conf = args.conf
@@ -267,7 +278,7 @@ def main(exp, args):
         exp.test_size = (args.tsize, args.tsize)
 
     model = exp.get_model()
-    logger.info("Model Summary: {}".format(get_model_info(model, exp.test_size)))
+    # logger.info("Model Summary: {}".format(get_model_info(model, exp.test_size)))
 
     if args.device == "gpu":
         model.cuda()
@@ -280,14 +291,14 @@ def main(exp, args):
             ckpt_file = os.path.join(file_name, "best_ckpt.pth")
         else:
             ckpt_file = args.ckpt
-        logger.info("loading checkpoint")
+        # logger.info("loading checkpoint")
         ckpt = torch.load(ckpt_file, map_location="cpu")
         # load the model state dict
         model.load_state_dict(ckpt["model"])
-        logger.info("loaded checkpoint done.")
+        # logger.info("loaded checkpoint done.")
 
     if args.fuse:
-        logger.info("\tFusing model...")
+        # logger.info("\tFusing model...")
         model = fuse_model(model)
 
     if args.trt:
@@ -298,7 +309,7 @@ def main(exp, args):
         ), "TensorRT model is not found!\n Run python3 tools/trt.py first!"
         model.head.decode_in_inference = False
         decoder = model.head.decode_outputs
-        logger.info("Using TensorRT to inference")
+        # logger.info("Using TensorRT to inference")
     else:
         trt_file = None
         decoder = None

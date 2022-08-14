@@ -16,6 +16,7 @@ coreapi==2.3.3
 coreschema==0.0.4
 cryptography==37.0.3
 cycler==0.11.0
+cv==1.0.0
 defusedxml==0.7.1
 docopt==0.6.2
 docutils==0.15.2
@@ -46,7 +47,7 @@ onnx==1.8.1
 onnx-simplifier==0.3.5
 onnxoptimizer==0.2.7
 onnxruntime==1.8.0
-opencv-python==4.6.0.66
+opencv-python==4.5.1.48
 packaging==21.3
 pathspec==0.5.9
 phonenumbers==8.12.50
