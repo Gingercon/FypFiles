@@ -9,7 +9,7 @@ div {text-align: center;}
 </style>
 </head>
 <body>
-<p style="text-align:center;"><img src="static\uploads\uniLogo.PNG"alt="c" class="center"></p>
+<p style="text-align:center;"><img src="static\uniLogo.PNG"alt="c" class="center"></p>
 <body style="background-color:powderblue;"></body>
 <title>Python Flask Image Upload and Display Example</title>
 <h1 style="color: rgb(238, 26, 107);">Final Year Project Deployment</h1>
@@ -31,7 +31,7 @@ div {text-align: center;}
 </p>
 {% if filename %}
     <div>
-        <img src="{{ url_for('display_image', filename=filename) }}">
+        <img src="{{ url_for('display_image', filename=filename) }} " width="1000" height="1200" />
     </div>
     <div>
         <p>
